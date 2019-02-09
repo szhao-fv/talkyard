@@ -35,38 +35,15 @@
    namespace debiki2.utils {
 //------------------------------------------------------------------------------
 
-export const enum PlaceHow {
-  ToTheLeft = 1,
-  ToTheRight = 2,
-  Above = 3,
-  Below = 4,
-  InTheMiddle = 5,
-}
-
-interface TalkyardTourStep {
-  title: string;
-  text: string;
-  placeAt: string;
-  placeHow?: PlaceHow,
-  waitForClick?: boolean;
-  highlightPadding?: number;
-  highlightOffsetX?: number;
-  highlightOffsetY?: number;
-}
-
-interface TalkyardTour {
-  steps: TalkyardTourStep[];
-}
-
 let tourElem;
 let startNewTour;
 
-export function maybeStartTalkyardTour(nextStepIx: number, tour: TalkyardTour) {
+export function maybeRunTour(tour: TalkyardTour) {
   if (!tourElem) {
     tourElem = ReactDOM.render(React.createFactory(TalkyardTour)(), utils.makeMountNode());
   }
   setTimeout(function() {
-    startNewTour(nextStepIx, tour);
+    startNewTour(tour);
   }, 100);
 }
 
@@ -168,8 +145,9 @@ function TalkyardTour() {
     }
   }
 
-  if (!startNewTour) startNewTour = (nextStepIx: number, tour: TalkyardTour) => {
+  if (!startNewTour) startNewTour = (tour: TalkyardTour) => {
     setTour(tour);
+    const nextStepIx = tour.forWho.tourTipsStates[tour.id];
     setNextStep(nextStepIx);
   }
 
@@ -183,6 +161,9 @@ function TalkyardTour() {
   function goToNextStep() {
     setElemVisible(false);
     setNextStep(nextStepIx + 1);
+    // This updates the state in place. Fine, in this case.  [redux]
+    tour.forWho.tourTipsStates[tour.id] = nextStepIx;
+    page.PostsReadTracker.saveTourTipsStates(tour.forWho.tourTipsStates);
   }
 
   function goToPrevStep() {

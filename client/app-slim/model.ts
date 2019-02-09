@@ -410,6 +410,7 @@ interface Myself extends OwnPageNotfPrefs {
 
   pageHelpMessage?: HelpMessage;
   closedHelpMessages: { [id: string]: number };  // id --> closed version of message   — id or nr?
+  tourTipsStates: TourTipsStates;
 
   myDataByPageId: { [id: string]: MyPageData };
   myCurrentPageData: MyPageData;
@@ -519,6 +520,44 @@ interface HelpMessage {
   className?: string;
   alwaysShow?: boolean;
 }
+
+
+
+type TourTipsStates = any; //{ [tourId: string]: number };  // number = which step
+
+type TourId = string;
+
+interface TalkyardTour {
+  id: TourId;
+  forWho: Myself;
+  steps: TalkyardTourStep[];
+}
+
+interface TalkyardTourStep {
+  title: string;
+  text: string;
+  placeAt: string;
+  placeHow?: PlaceHow,
+  waitForClick?: boolean;
+  highlightPadding?: number;
+  highlightOffsetX?: number;
+  highlightOffsetY?: number;
+}
+
+const enum PlaceHow {
+  ToTheLeft = 1,
+  ToTheRight = 2,
+  Above = 3,
+  Below = 4,
+  InTheMiddle = 5,
+}
+
+interface StaffTours {
+  forum: (me: Myself) => TalkyardTour;
+  adminArea: (me: Myself) => TalkyardTour;
+}
+
+
 
 
 interface Category {

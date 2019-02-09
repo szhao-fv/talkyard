@@ -547,121 +547,16 @@ ReactStore.activateMyself = function(anyNewMe: Myself) {
   store.quickUpdate = false;
 
   if (!store.me.isAdmin) {
-    
+    // If new user, show open-my-menu tiny one step tour?
   }
   else if (eds.isInAdminArea) {
-    debiki2.utils.maybeStartTalkyardTour(0, {   // me.nextAdminIntroStepIx, {
-      steps: [{
-        title: "This is the Admin Area",
-        text: "It's for staff only",
-        placeAt: 'body',
-      }, {
-        title: "Let's view login settings",
-        text: r.span({}, "Click ", r.b({}, "Signup and Login")),
-        placeAt: '#e2eAA_Ss_LoginL',
-        placeHow: debiki2.utils.PlaceHow.ToTheRight,
-        waitForClick: true,
-      }, {
-        title: "Here you can ...",
-        text: r.span({}, "... make this community ", r.b({}, "private")),
-        placeAt: '.e_A_Ss_S-LoginRequiredCB',
-        placeHow: debiki2.utils.PlaceHow.Below,
-        highlightOffsetX: 20,
-        highlightOffsetY: 3,
-      }, {
-        title: "Let's go here",
-        text: r.span({}, "Click the ", r.b({}, "Review"), " tab"),
-        placeAt: '.e_RvwB',
-        placeHow: debiki2.utils.PlaceHow.Below,
-        waitForClick: true,
-      }, {
-        title: "Later, new members' ...",
-        text: "... first posts are shown here. So you can " +
-            "check that they are okay.",
-        placeAt: 'body',
-      }, {
-        title: "One last thing",
-        text: r.span({}, "Click the ", r.b({}, "Users"), " tab"),
-        placeAt: '.e_UsrsB',
-        placeHow: debiki2.utils.PlaceHow.ToTheRight,
-        waitForClick: true,
-      }, {
-        title: "You can invite people",
-        text: r.span({}, "Click ", r.b({}, "Invite"), " above, please"),
-        placeAt: '.e_InvitedUsB',
-        placeHow: debiki2.utils.PlaceHow.Below,
-        waitForClick: true,
-      }, {
-        title: "Here you can invite people",
-        text: "to your community",
-        placeAt: 'body',
-      }, {
-        title: "Look, an admin guide",
-        text: "For you.",
-        placeAt: '.esCtxbar_list_title',
-        placeHow: debiki2.utils.PlaceHow.ToTheLeft,
-        highlightOffsetX: -30,
-      }, {
-        title: "That's it, for now",
-        text: "Have a nice day.",
-        placeAt: 'body',
-      }],
+    debiki2.staffbundle.loadStaffTours((tours) => {
+      debiki2.utils.maybeRunTour(tours.adminArea(store.me));
     });
   }
   else {
-    debiki2.utils.maybeStartTalkyardTour(0, {   // me.nextAdminIntroStepIx, {
-      steps: [{
-        title: `Welcome ${store.me.fullName || store.me.username}!`,
-        text: "Let me show you around",
-        placeAt: 'body',
-      }, {
-        title: "This is the intro text",
-        text: "It tells people what they can do here",
-        placeAt: '.esForumIntro p',
-        placeHow: debiki2.utils.PlaceHow.Below,
-        highlightOffsetX: -50,
-      }, {
-        title: "You can edit the intro text",
-        text: r.span({}, "by clicking ", r.b({}, "Edit"), ". Later, not now."),
-        placeAt: '.esForumIntro_edit',
-        placeHow: debiki2.utils.PlaceHow.Below,
-      }, {
-        title: "The welcome topic",
-        text: "Later, click and edit this topic, too",
-        placeAt: '.s_F_Ts_T_Con [href]',
-        placeHow: debiki2.utils.PlaceHow.ToTheRight,
-        highlightOffsetX: 5,
-      }, {
-        title: "Go to categories",
-        text: r.span({},
-          "Click ", r.b({ style: { textDecoration: 'underline' }}, "Categories"), " above, now"),
-        placeAt: '.esForum_navLink',
-        placeHow: debiki2.utils.PlaceHow.Below,
-        waitForClick: true,
-      }, {
-        title: "The Categories page",
-        text: "Here you see all categories. (That is, groups of topics about the same thing)",
-        placeAt: 'body',
-      }, {
-        title: "You can create categories",
-        text: "by clicking here. Not now. Later.",
-        placeAt: '#e2eCreateCategoryB',
-        placeHow: debiki2.utils.PlaceHow.ToTheLeft,
-        highlightPadding: 20,
-      }, {
-        title: "Your menu",
-        text: r.span({}, "Click your name, ", r.b({}, store.me.username), ", to open. Now"),
-        placeAt: '.esMyMenu',
-        placeHow: debiki2.utils.PlaceHow.ToTheLeft,
-        waitForClick: true,
-      }, {
-        title: "Admin area link",
-        text: "Click now, to go to the admin area.",
-        placeAt: '.esMyMenu_admin',
-        placeHow: debiki2.utils.PlaceHow.Below,
-        highlightPadding: -3,
-        waitForClick: true,
-      }],
+    debiki2.staffbundle.loadStaffTours((tours) => {
+      debiki2.utils.maybeRunTour(tours.forum(store.me));
     });
   }
 };
@@ -1595,6 +1490,7 @@ function makeStranger(store: Store): Myself {
     restrictedCategories: <Category[]> [],
 
     closedHelpMessages: <any> {},
+    tourTipsStates: <any> {},
 
     myCatsTagsSiteNotfPrefs: <PageNotfPref[]> [],
     groupsCatsTagsSiteNotfPrefs: <PageNotfPref[]> [],
