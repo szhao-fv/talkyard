@@ -1109,14 +1109,25 @@ class UserController @Inject()(cc: ControllerComponents, edContext: EdContext)
     val postNrsRead = pagePostNrIdsRead.map(_.postNr)
     val postNrsReadAsSet = postNrsRead.toSet
 
+    val anyTourTipsStates = (body \ "newTourTipsStates").asOpt[JsObject]
+    // Check if is ok json.  COULD break out function? Or TourStates class?
+    anyTourTipsStates.foreach(_.fields.foreach(tourNameAndState => {
+      throwBadRequestIf(!tourNameAndState._1.isEmpty,
+        "TyE4ABKR0", "Bad tour name: Empty string")
+      throwBadRequestIf(!tourNameAndState._1.isAToZUnderscoreOnly,
+        "TyE4ABKR1", "Bad tour name: not A-Z a-z or underscore")
+      throwBadRequestIf(!tourNameAndState._2.isInstanceOf[JsNumber],
+        "TyE4ABKR2", "Bad tour state, not a number")
+    }))
+
     play.api.Logger.trace(
       s"s$siteId, page $pageId: Post nrs read: $postNrsRead, seconds reading: $secondsReading")
 
     val now = globals.now()
-    val lowPostNrsRead: Set[PostNr] = postNrsReadAsSet.filter(_ <= ReadingProgress.MaxLowPostNr)
+    val lowPostNrsRead: Set[PostNr] = postNrsReadAsSet.filter(_ <= PageReadingProgress.MaxLowPostNr)
     val lastPostNrsReadRecentFirst =
-      postNrsRead.filter(_ > ReadingProgress.MaxLowPostNr).reverse.take(
-        ReadingProgress.MaxLastPostsToRemember).distinct
+      postNrsRead.filter(_ > PageReadingProgress.MaxLowPostNr).reverse.take(
+        PageReadingProgress.MaxLastPostsToRemember).distinct
 
     if (visitStartedAt.isAfter(now)) {
       // Bad browser date-time setting?
@@ -1139,8 +1150,8 @@ class UserController @Inject()(cc: ControllerComponents, edContext: EdContext)
       }
     }
 
-    val readingProgress =
-      try ReadingProgress(
+    val pageReadingProgress =
+      try PageReadingProgress(
         firstVisitedAt = visitStartedAt,
         lastVisitedAt = now,
         lastViewedPostNr = lastViewedPostNr,
@@ -1156,7 +1167,8 @@ class UserController @Inject()(cc: ControllerComponents, edContext: EdContext)
     request.dao.pubSub.userIsActive(request.siteId, requester, request.theBrowserIdData)
 
     request.dao.trackReadingProgressClearNotfsPerhapsPromote(
-        requester, pageId, pagePostNrIdsRead.map(_.postId).toSet, readingProgress)
+        requester, pageId, pagePostNrIdsRead.map(_.postId).toSet, pageReadingProgress,
+        anyTourTipsStates)
   }
 
 

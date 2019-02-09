@@ -660,6 +660,7 @@ class JsonMaker(dao: SiteDao) {
         ThreatLevel.HopefullySafe
     }
 
+    val tourTipsJson = tx.loadUserStats(user.id).flatMap(_.tourTipsStates) getOrElse JsEmptyObj
     val anyReadingProgress = anyPageId.flatMap(tx.loadReadProgress(user.id, _))
     val anyReadingProgressJson = anyReadingProgress.map(makeReadingProgressJson).getOrElse(JsNull)
 
@@ -719,6 +720,7 @@ class JsonMaker(dao: SiteDao) {
       "restrictedTopicsUsers" -> restrictedTopicsUsers,
       "restrictedCategories" -> restrictedCategories,
       "closedHelpMessages" -> JsObject(Nil),
+      "tourTipsStates" -> tourTipsJson,
       "myCatsTagsSiteNotfPrefs" -> JsArray(myCatsTagsSiteNotfPrefs.map(JsPageNotfPref)),
       "groupsCatsTagsSiteNotfPrefs" -> JsArray(groupsCatsTagsSiteNotfPrefs.map(JsPageNotfPref)),
       "myDataByPageId" -> ownDataByPageId,
@@ -1355,7 +1357,7 @@ object JsonMaker {
   }
 
 
-  def makeReadingProgressJson(readingProgress: ReadingProgress): JsValue = {
+  def makeReadingProgressJson(readingProgress: PageReadingProgress): JsValue = {
     Json.obj(
       "lastViewedPostNr" -> readingProgress.lastViewedPostNr,
       // When including these, remove [5WKW219].
