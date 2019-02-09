@@ -51,6 +51,7 @@ let postNrsVisibleLastTick: { [postNr: number]: boolean };
 let pageId;
 let postNrsJustRead: PostNr[];
 let wentToTopAtMs: number;
+let newTourTipsStates: TourTipsStates;
 
 // After having read one post, wait a short while before posting to the server, because usually
 // the next few seonds, a bunch of more posts will also get considered read. Better then,
@@ -107,6 +108,7 @@ export function reset() {
   pageId = debiki2.ReactStore.getPageId();
   postNrsJustRead = [];
   wentToTopAtMs = undefined;
+  newTourTipsStates = undefined;
 
   lastScrolledAtMs = Date.now();
   lastScrollLeft = -1;
@@ -143,6 +145,12 @@ export function getPostNrsAutoReadLongAgo(): number[] {
 }
 
 
+export function saveTourTipsStates(tourTipsStates: TourTipsStates) {
+  newTourTipsStates = tourTipsStates;
+}
+
+
+
 // @ifdef DEBUG
 function toNrs(posts: Post[]): PostNr[] {
   return posts.map(post => post.nr);
@@ -151,11 +159,21 @@ function toNrs(posts: Post[]): PostNr[] {
 
 
 export function sendAnyRemainingData(success?) {
-  if (talksWithSererAlready || !unreportedSecondsReading ||
+  let skip = false;
+  if (talksWithSererAlready) {
+    skip = true;
+  }
+  else if (newTourTipsStates) {
+    // Should be uploaded.
+  }
+  else if (!unreportedSecondsReading ||
       unreportedSecondsReading <= TooFewSeconds ||
       // It's undef, if haven't looked at the page for long enough. (5AKBR02)
       _.isUndefined(lastViewedPostNr)) {
+    skip = true;
+  }
 
+  if (skip) {
     // @ifdef DEBUG
     if (debug) console.log(
         `*Not* sending remaining post nrs read via beacon: ${toNrs(unreportedPostsRead)},` +
@@ -171,7 +189,8 @@ export function sendAnyRemainingData(success?) {
   // @endif
 
   // Don't include any 'success' callback —> sendBeacon will get used.
-  Server.trackReadingProgress(lastViewedPostNr, unreportedSecondsReading, unreportedPostsRead, success);
+  Server.trackReadingProgress(lastViewedPostNr, unreportedSecondsReading, unreportedPostsRead,
+      newTourTipsStates, success);
   lastReportedToServerAtMs = Date.now();
 
   // If navigating to new page, it'll reset everything.
@@ -296,16 +315,18 @@ function trackReadingActivity() {
     // the pubsub (long-polling / websocket) requests? which auto-retries, if reconnects.
     // See subscribeToServerEvents().
     Server.trackReadingProgress(lastViewedPostNr, unreportedSecondsReading,
-        unreportedPostsRead, () => {
+        unreportedPostsRead, newTourTipsStates, () => {
       talksWithSererAlready = false;
       // In case the server is slow because under heavy load, better reset this here in
       // the done-callback, when the response arrives, rather than when the request is being sent.
       lastReportedToServerAtMs = Date.now();
     });
 
+    // (Don't do this inside the callback — that could overwrite values set while req in-flight.)
     unreportedSecondsReading = 0;
     unreportedPostsRead = [];
     firstUnreportedPostReadAtMs = undefined;
+    newTourTipsStates = undefined;
   }
 
   const hasFocus = document.hasFocus();
