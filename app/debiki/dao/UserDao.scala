@@ -995,7 +995,7 @@ trait UserDao {
     */
   def trackReadingProgressClearNotfsPerhapsPromote(
         user: Participant, pageId: PageId, postIdsSeen: Set[PostId], newProgress: PageReadingProgress,
-        anyTourTipsStates: Option[TourTipsStates]): ReadMoreResult = {
+        anyTourTipsSeen: Option[TourTipsSeen]): ReadMoreResult = {
     // Tracking guests' reading progress would take a bit much disk space, makes disk-space DoS
     // attacks too simple. [8PLKW46]
     require(user.isMember, "EdE8KFUW2")
@@ -1050,7 +1050,7 @@ trait UserDao {
         numDiscourseRepliesRead = numMoreDiscourseRepliesRead,
         numChatTopicsEntered = numMoreChatTopicsEntered,
         numChatMessagesRead = numMoreChatMessagesRead,
-        tourTipsStates = anyTourTipsStates))
+        tourTipsSeen = anyTourTipsSeen))
 
       COULD_OPTIMIZE // aggregate the reading progress in Redis instead. Save every 5? 10? minutes,
       // so won't write to the db so very often.  (5ABKR20L)

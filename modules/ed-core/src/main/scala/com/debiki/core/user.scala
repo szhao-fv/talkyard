@@ -1495,7 +1495,7 @@ case class UserStats(
   numLikesGiven: Int = 0,
   numLikesReceived: Int = 0,
   numSolutionsProvided: Int = 0,
-  tourTipsStates: Option[TourTipsStates] = None,
+  tourTipsSeen: Option[TourTipsSeen] = None,
   mayBeNegative: Boolean = false) {
 
   require(lastSeenAt.millis >= firstSeenAtOr0.millis, "EdE6BMLA09")
@@ -1585,7 +1585,7 @@ case class UserStats(
       numLikesGiven = numLikesGiven + moreStats.numLikesGiven,
       numLikesReceived = numLikesReceived + moreStats.numLikesReceived,
       numSolutionsProvided = numSolutionsProvided + moreStats.numSolutionsProvided,
-      tourTipsStates = moreStats.tourTipsStates orElse this.tourTipsStates)
+      tourTipsSeen = moreStats.tourTipsSeen orElse this.tourTipsSeen)
     }
 
 

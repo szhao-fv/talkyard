@@ -1109,15 +1109,12 @@ class UserController @Inject()(cc: ControllerComponents, edContext: EdContext)
     val postNrsRead = pagePostNrIdsRead.map(_.postNr)
     val postNrsReadAsSet = postNrsRead.toSet
 
-    val anyTourTipsStates = (body \ "newTourTipsStates").asOpt[JsObject]
-    // Check if is ok json.  COULD break out function? Or TourStates class?
-    anyTourTipsStates.foreach(_.fields.foreach(tourNameAndState => {
-      throwBadRequestIf(!tourNameAndState._1.isEmpty,
-        "TyE4ABKR0", "Bad tour name: Empty string")
-      throwBadRequestIf(!tourNameAndState._1.isAToZUnderscoreOnly,
-        "TyE4ABKR1", "Bad tour name: not A-Z a-z or underscore")
-      throwBadRequestIf(!tourNameAndState._2.isInstanceOf[JsNumber],
-        "TyE4ABKR2", "Bad tour state, not a number")
+    val tourTipsSeenJson = (body \ "tourTipsSeen").asOpt[Vector[JsString]]
+    val tourTipsSeen: Option[immutable.Seq[TourTipsId]] = tourTipsSeenJson.map(_.map(_.value))
+    tourTipsSeen.foreach(_ foreach((id: TourTipsId) => {
+      // Check if is ok json.  COULD break out function? Or TourStates class?
+      throwBadRequestIf(id.isEmpty, "TyE4ABKR0", "Bad tour or tips id: Empty string")
+      throwBadRequestIf(!id.isOkVariableName, "TyE4ABKR2", s"Bad tour or tips id: `$id'")
     }))
 
     play.api.Logger.trace(
@@ -1168,7 +1165,7 @@ class UserController @Inject()(cc: ControllerComponents, edContext: EdContext)
 
     request.dao.trackReadingProgressClearNotfsPerhapsPromote(
         requester, pageId, pagePostNrIdsRead.map(_.postId).toSet, pageReadingProgress,
-        anyTourTipsStates)
+        tourTipsSeen)
   }
 
 

@@ -637,7 +637,8 @@ package object core {
   }
 
 
-  type TourTipsStates = JsValue // for now
+  type TourTipsId = String
+  type TourTipsSeen = immutable.Seq[TourTipsId]
 
 
   /** Lets one do requests via the API.

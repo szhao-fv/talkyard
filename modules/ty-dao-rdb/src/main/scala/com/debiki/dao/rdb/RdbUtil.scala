@@ -388,7 +388,7 @@ object RdbUtil {
     |num_likes_given,
     |num_likes_received,
     |num_solutions_provided,
-    |tour_tips_states"""
+    |tour_tips_seen"""
 
 
   def getUserStats(rs: js.ResultSet): UserStats = {
@@ -421,7 +421,7 @@ object RdbUtil {
       numLikesGiven = rs.getInt("num_likes_given"),
       numLikesReceived = rs.getInt("num_likes_received"),
       numSolutionsProvided = rs.getInt("num_solutions_provided"),
-      tourTipsStates = getOptString(rs, "tour_tips_states").map(play.api.libs.json.Json.parse))
+      tourTipsSeen = getOptArrayOfStrings(rs, "tour_tips_seen"))
   }
 
 

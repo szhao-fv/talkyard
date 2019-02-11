@@ -165,7 +165,7 @@ trait PostsReadStatsSiteDaoMixin extends SiteTransaction { // RENAME to ReadStat
         num_likes_given,
         num_likes_received,
         num_solutions_provided,
-        tour_tips_states)
+        tour_tips_seen)
       values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       on conflict (site_id, user_id) do update set
         last_seen_at =
@@ -207,7 +207,7 @@ trait PostsReadStatsSiteDaoMixin extends SiteTransaction { // RENAME to ReadStat
         num_likes_given = excluded.num_likes_given,
         num_likes_received = excluded.num_likes_received,
         num_solutions_provided = excluded.num_solutions_provided,
-        tour_tips_states = excluded.tour_tips_states
+        tour_tips_seen = excluded.tour_tips_seen
       """
 
     val values = List(
@@ -240,7 +240,7 @@ trait PostsReadStatsSiteDaoMixin extends SiteTransaction { // RENAME to ReadStat
       userStats.numLikesGiven.asAnyRef,
       userStats.numLikesReceived.asAnyRef,
       userStats.numSolutionsProvided.asAnyRef,
-      userStats.tourTipsStates.map(_.toString).orNullVarchar)
+      makeSqlArrayOfStringsUnique(userStats.tourTipsSeen getOrElse Nil))
 
     runUpdateExactlyOneRow(statement, values)
   }

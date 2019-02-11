@@ -660,7 +660,12 @@ class JsonMaker(dao: SiteDao) {
         ThreatLevel.HopefullySafe
     }
 
-    val tourTipsJson = tx.loadUserStats(user.id).flatMap(_.tourTipsStates) getOrElse JsEmptyObj
+    val anyStats = tx.loadUserStats(user.id)
+    val tourTipsSeenJson: Seq[JsString] = anyStats flatMap { stats: UserStats =>
+      stats.tourTipsSeen.map((theTourTipsSeen: TourTipsSeen) =>
+        theTourTipsSeen.map(JsString): Seq[JsString])
+    } getOrElse Nil
+
     val anyReadingProgress = anyPageId.flatMap(tx.loadReadProgress(user.id, _))
     val anyReadingProgressJson = anyReadingProgress.map(makeReadingProgressJson).getOrElse(JsNull)
 
@@ -720,7 +725,7 @@ class JsonMaker(dao: SiteDao) {
       "restrictedTopicsUsers" -> restrictedTopicsUsers,
       "restrictedCategories" -> restrictedCategories,
       "closedHelpMessages" -> JsObject(Nil),
-      "tourTipsStates" -> tourTipsJson,
+      "tourTipsSeen" -> tourTipsSeenJson,
       "myCatsTagsSiteNotfPrefs" -> JsArray(myCatsTagsSiteNotfPrefs.map(JsPageNotfPref)),
       "groupsCatsTagsSiteNotfPrefs" -> JsArray(groupsCatsTagsSiteNotfPrefs.map(JsPageNotfPref)),
       "myDataByPageId" -> ownDataByPageId,

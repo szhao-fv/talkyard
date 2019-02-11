@@ -51,7 +51,7 @@ let postNrsVisibleLastTick: { [postNr: number]: boolean };
 let pageId;
 let postNrsJustRead: PostNr[];
 let wentToTopAtMs: number;
-let newTourTipsStates: TourTipsStates;
+let newTourTipsSeen: TourTipsSeen;
 
 // After having read one post, wait a short while before posting to the server, because usually
 // the next few seonds, a bunch of more posts will also get considered read. Better then,
@@ -108,7 +108,7 @@ export function reset() {
   pageId = debiki2.ReactStore.getPageId();
   postNrsJustRead = [];
   wentToTopAtMs = undefined;
-  newTourTipsStates = undefined;
+  newTourTipsSeen = undefined;
 
   lastScrolledAtMs = Date.now();
   lastScrollLeft = -1;
@@ -129,7 +129,7 @@ let hadFocus = false;
 export function start() {
   reset();
   debugIntervalHandler = setInterval(trackReadingActivity, secondsBetweenTicks * 1000);
-  window.addEventListener('unload', sendAnyRemainingData, false);
+  window.addEventListener('unload', sendAnyRemainingDataWithBeacon, false);
   ReactStore.addChangeListener(function() {
     storeChanged = true;
   });
@@ -145,8 +145,8 @@ export function getPostNrsAutoReadLongAgo(): number[] {
 }
 
 
-export function saveTourTipsStates(tourTipsStates: TourTipsStates) {
-  newTourTipsStates = tourTipsStates;
+export function saveTourTipsSeen(tourTipsSeen: TourTipsSeen) {
+  newTourTipsSeen = tourTipsSeen;
 }
 
 
@@ -158,12 +158,17 @@ function toNrs(posts: Post[]): PostNr[] {
 // @endif
 
 
-export function sendAnyRemainingData(success?) {
+function sendAnyRemainingDataWithBeacon(unloadEventIgnored) {
+  sendAnyRemainingData(null);
+}
+
+
+export function sendAnyRemainingData(success: () => void | null) {
   let skip = false;
   if (talksWithSererAlready) {
     skip = true;
   }
-  else if (newTourTipsStates) {
+  else if (newTourTipsSeen) {
     // Should be uploaded.
   }
   else if (!unreportedSecondsReading ||
@@ -190,7 +195,7 @@ export function sendAnyRemainingData(success?) {
 
   // Don't include any 'success' callback —> sendBeacon will get used.
   Server.trackReadingProgress(lastViewedPostNr, unreportedSecondsReading, unreportedPostsRead,
-      newTourTipsStates, success);
+      newTourTipsSeen, success);
   lastReportedToServerAtMs = Date.now();
 
   // If navigating to new page, it'll reset everything.
@@ -315,7 +320,7 @@ function trackReadingActivity() {
     // the pubsub (long-polling / websocket) requests? which auto-retries, if reconnects.
     // See subscribeToServerEvents().
     Server.trackReadingProgress(lastViewedPostNr, unreportedSecondsReading,
-        unreportedPostsRead, newTourTipsStates, () => {
+        unreportedPostsRead, newTourTipsSeen, () => {
       talksWithSererAlready = false;
       // In case the server is slow because under heavy load, better reset this here in
       // the done-callback, when the response arrives, rather than when the request is being sent.
@@ -326,7 +331,7 @@ function trackReadingActivity() {
     unreportedSecondsReading = 0;
     unreportedPostsRead = [];
     firstUnreportedPostReadAtMs = undefined;
-    newTourTipsStates = undefined;
+    newTourTipsSeen = undefined;
   }
 
   const hasFocus = document.hasFocus();

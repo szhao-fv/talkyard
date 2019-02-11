@@ -16,7 +16,6 @@
  */
 
 /// <reference path="../staff-prelude.staff.ts" />
-/// <reference path="oop-method.staff.ts" />
 
 
 //------------------------------------------------------------------------------
@@ -26,11 +25,12 @@
 const r = ReactDOMFactories;
 
 
-export const tours: StaffTours = {
+export const staffTours: StaffTours = {
   adminArea: function(me: Myself) { return {
     id: 'aa',  // for Admins, the Admin area
     forWho: me,
     steps: [{
+      pauseBeforeMs: 1000,
       title: "This is the Admin Area",
       text: "It's for staff only",
       placeAt: 'body',
@@ -54,11 +54,13 @@ export const tours: StaffTours = {
       placeHow: PlaceHow.Below,
       waitForClick: true,
     }, {
+      pauseBeforeMs: 500,
       title: "Later, new members' ...",
       text: "... first posts are shown here. So you can " +
           "check that they are okay.",
       placeAt: 'body',
     }, {
+      pauseBeforeMs: 500,
       title: "One last thing",
       text: r.span({}, "Click the ", r.b({}, "Users"), " tab"),
       placeAt: '.e_UsrsB',
@@ -90,6 +92,7 @@ export const tours: StaffTours = {
     id: 'af',  // for Admins, the Forum section
     forWho: me,
     steps: [{
+      pauseBeforeMs: 1000,
       title: `Welcome, ${me.fullName || me.username}!`,
       text: "Let me show you around",
       placeAt: 'body',
@@ -118,6 +121,7 @@ export const tours: StaffTours = {
       placeHow: PlaceHow.Below,
       waitForClick: true,
     }, {
+      pauseBeforeMs: 700,
       title: "The Categories page",
       text: "Here you see all categories. (That is, groups of topics about the same thing)",
       placeAt: 'body',

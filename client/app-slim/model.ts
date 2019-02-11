@@ -410,7 +410,7 @@ interface Myself extends OwnPageNotfPrefs {
 
   pageHelpMessage?: HelpMessage;
   closedHelpMessages: { [id: string]: number };  // id --> closed version of message   — id or nr?
-  tourTipsStates: TourTipsStates;
+  tourTipsSeen: TourTipsSeen;
 
   myDataByPageId: { [id: string]: MyPageData };
   myCurrentPageData: MyPageData;
@@ -523,9 +523,8 @@ interface HelpMessage {
 
 
 
-type TourTipsStates = any; //{ [tourId: string]: number };  // number = which step
-
 type TourId = string;
+type TourTipsSeen = TourId[];
 
 interface TalkyardTour {
   id: TourId;
@@ -534,6 +533,7 @@ interface TalkyardTour {
 }
 
 interface TalkyardTourStep {
+  pauseBeforeMs?: number;
   title: string;
   text: string;
   placeAt: string;

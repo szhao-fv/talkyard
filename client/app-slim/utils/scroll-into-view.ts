@@ -38,7 +38,7 @@ export function calcScrollIntoViewCoordsInPageColumn(what, options?) {
 }
 
 
-export function scrollIntoViewInPageColumn(what, options?) {
+export function scrollIntoViewInPageColumn(what, options?): boolean | undefined {
   // Warning: dupl code, see [5GUKF24] above.
   if (what && _.isString(what)) {
     what = $first(what);
@@ -50,7 +50,7 @@ export function scrollIntoViewInPageColumn(what, options?) {
   }
   debiki2.dieIf(options.parent, 'EsE5GKF23');
   options.parent = $byId('esPageColumn');
-  scrollIntoView(what, options);
+  return scrollIntoView(what, options);
 }
 
 
@@ -74,10 +74,11 @@ d.i.calcScrollIntoViewCoords = function(elem, options) {
 };
 
 
-export function scrollIntoView(elem, options, onDone?: () => void) {
+export function scrollIntoView(elem, options, onDone?: () => void): boolean | undefined {
   options = options ? _.clone(options) : {};
   const duration = options.duration || 600;
 
+  let needsToScroll: boolean | undefined;
   if (eds.isInEmbeddedCommentsIframe) {
     delete options.parent;
     const rect = cloneRect(elem.getBoundingClientRect());
@@ -88,7 +89,8 @@ export function scrollIntoView(elem, options, onDone?: () => void) {
       options.parent = $byId('esPageColumn');
     }
     const coords = d.i.calcScrollIntoViewCoords(elem, options);
-    if (coords.needsToScroll) {
+    needsToScroll = coords.needsToScroll;
+    if (needsToScroll) {
       smoothScroll(options.parent, coords.desiredParentLeft, coords.desiredParentTop);
     }
   }
@@ -96,6 +98,7 @@ export function scrollIntoView(elem, options, onDone?: () => void) {
   if (onDone) {
     onDone();
   }
+  return needsToScroll;
 }
 
 d.i.scrollIntoView = scrollIntoView;

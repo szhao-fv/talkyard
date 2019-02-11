@@ -546,18 +546,23 @@ ReactStore.activateMyself = function(anyNewMe: Myself) {
   debiki2.pubsub.subscribeToServerEvents(store.me);
   store.quickUpdate = false;
 
+  // This is a bit hacky. Works for now. HACK
   if (!store.me.isAdmin) {
     // If new user, show open-my-menu tiny one step tour?
   }
   else if (eds.isInAdminArea) {
-    debiki2.staffbundle.loadStaffTours((tours) => {
-      debiki2.utils.maybeRunTour(tours.adminArea(store.me));
-    });
+    if (location.pathname === '/-/admin/settings/legal') {
+      debiki2.staffbundle.loadStaffTours((tours) => {
+        debiki2.utils.maybeRunTour(tours.adminArea(store.me));
+      });
+    }
   }
   else {
-    debiki2.staffbundle.loadStaffTours((tours) => {
-      debiki2.utils.maybeRunTour(tours.forum(store.me));
-    });
+    if (location.pathname.endsWith('/latest')) {
+      debiki2.staffbundle.loadStaffTours((tours) => {
+        debiki2.utils.maybeRunTour(tours.forum(store.me));
+      });
+    }
   }
 };
 
@@ -1490,7 +1495,7 @@ function makeStranger(store: Store): Myself {
     restrictedCategories: <Category[]> [],
 
     closedHelpMessages: <any> {},
-    tourTipsStates: <any> {},
+    tourTipsSeen: <TourTipsSeen> [],
 
     myCatsTagsSiteNotfPrefs: <PageNotfPref[]> [],
     groupsCatsTagsSiteNotfPrefs: <PageNotfPref[]> [],
