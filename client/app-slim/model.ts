@@ -533,9 +533,11 @@ interface TalkyardTour {
 }
 
 interface TalkyardTourStep {
+  doBefore?: () => void;
   pauseBeforeMs?: number;
   title: string;
   text: string;
+  nextTitle?: string;
   placeAt: string;
   placeHow?: PlaceHow,
   waitForClick?: boolean;

@@ -1368,7 +1368,7 @@ const CategoryRow = createComponent({
     const store: Store = this.props.store;
     // If this is a newly created category, scroll it into view. [7KFWIQ2]
     if (this.props.category.slug === store.newCategorySlug) {
-      utils.scrollIntoViewInPageColumn(ReactDOM.findDOMNode(this));
+      utils.scrollIntoViewInPageColumn(<Element> ReactDOM.findDOMNode(this));
     }
   },
 

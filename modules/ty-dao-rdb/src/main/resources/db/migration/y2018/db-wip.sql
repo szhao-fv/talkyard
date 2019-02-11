@@ -1,5 +1,6 @@
 alter table user_stats3 add column tour_tips_seen varchar[];
-alter table user_stats3 add constraint userstats_c_tourtipsseen_len check (pg_column_size(tour_tips_seen) <= 400);
+alter table user_stats3 add constraint userstats_c_tourtipsseen_len check (
+    pg_column_size(tour_tips_seen) <= 400);
 
 --alter table user_stats3 add constraint userstats_c_guest_tour_null check (user_id > 0 or tour_tips_states is null);
 -- Right now, groups have no trust level. [1WBK5JZ0]

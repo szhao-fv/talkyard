@@ -56,9 +56,10 @@ export function maybeRunTour(tour: TalkyardTour) {
 function TalkyardTour() {
   const [tour, setTour] = React.useState<TalkyardTour>(null);
   const [stepIx, setStepIx] = React.useState(0);
-  const [elemVisible, setElemVisible] = React.useState(false);
+  //const [elemVisible, setElemVisible] = React.useState(false);
   const tourHighlightRef = React.useRef(null);
   const tourDialogRef = React.useRef(null);
+  let beforeThingDone = false;
 
   React.useEffect(waitForAndScrollToElemThenShowDialog);
 
@@ -77,6 +78,11 @@ function TalkyardTour() {
   function waitForAndScrollToElemThenShowDialog() {
     if (!tour) return;
     if (!step) return;
+    if (step.doBefore && !beforeThingDone) {
+      step.doBefore();
+      beforeThingDone = true;
+    }
+
     /*
     if (step.pauseBeforeMs) {
       setPauseDone(stepIx);
@@ -84,24 +90,32 @@ function TalkyardTour() {
       return;
     } */
     const placeAtElem: HTMLElement = $first(step.placeAt);  // [27KAH5]
+
+    // Remove highlighting, until new elem appears and done scrolling.
     const highlightElem: HTMLElement = tourHighlightRef.current;
+    const dialogElem: HTMLElement = tourDialogRef.current;
+    highlightElem.style.padding = '0px';
+    dialogElem.style.visibility = 'hidden';  // not display:none — that'd mess up the dialog's
+                                             // positioning, which needs its size.
 
     if (!placeAtElem) {
       setTimeout(waitForAndScrollToElemThenShowDialog, 1000);
-      // Remove highlighting, until new elem appears.
-      highlightElem.style.padding = '0px';
       return;
     }
 
-    const didScroll = utils.scrollIntoViewInPageColumn(
-        placeAtElem, { marginTop: 140, marginBottom: 500 });
-    if (didScroll) {
+    const isScrolling = utils.scrollIntoViewInPageColumn(
+        placeAtElem, { marginTop: 100, marginBottom: 200 });
+    //if (isScrolling) {
       // Sometimes the first scroll somehow doesn't scroll all the way.
-      setTimeout(waitForAndScrollToElemThenShowDialog, 500);
-      return;
-    }
-
-    showDialog();
+      //setTimeout(waitForAndScrollToElemThenShowDialog, 500);
+      // For now. Currently there's no scroll-done event.
+      //utils.scrollIntoViewInPageColumn(placeAtElem, { marginTop: 140, marginBottom: 500 });
+      const delayMs = (step.pauseBeforeMs || 0) + (isScrolling ? 500 : 0);
+      setTimeout(showDialog, delayMs);
+    //}
+    //else {
+      //showDialog();
+    //}
   }
 
   function showDialog() {
@@ -109,7 +123,10 @@ function TalkyardTour() {
     const highlightElem: HTMLElement = tourHighlightRef.current;
 
     // Does nothing if already visible.
-    setElemVisible(true);
+    //setElemVisible(true);
+    if (step.waitForClick) {
+      tourHighlightRef.current.style.pointerEvents = 'none';
+    }
 
     const placeAtRect = placeAtElem.getBoundingClientRect();
 
@@ -125,11 +142,11 @@ function TalkyardTour() {
     switch (step.placeHow) {
       case PlaceHow.ToTheLeft:
         left = placeAtRect.left - dialogWidth - 2 * extraPadding;
-        top = placeAtRect.top + placeAtRect.height / 2 - dialogHeight / 2;
+        top = Math.max(30, placeAtRect.top + placeAtRect.height / 2 - dialogHeight / 2);
         break;
       case PlaceHow.ToTheRight:
         left = placeAtRect.left + placeAtRect.width + 2 * extraPadding;
-        top = placeAtRect.top + placeAtRect.height / 2 - dialogHeight / 2;
+        top = Math.max(30, placeAtRect.top + placeAtRect.height / 2 - dialogHeight / 2);
         break;
       case PlaceHow.Above:
         left = placeAtRect.left + placeAtRect.width / 2 - dialogWidth / 2;
@@ -154,6 +171,8 @@ function TalkyardTour() {
       left = placeAtRect.left + placeAtRect.width / 2 - dialogWidth / 2;
       top = placeAtRect.top + placeAtRect.height + 2 * extraPadding;
     }
+
+    dialogElem.style.visibility = 'visible';
     dialogElem.style.left = left + 'px';
     dialogElem.style.top = top + 'px';
 
@@ -192,12 +211,13 @@ function TalkyardTour() {
       goToNextStep();
     }
 
-    highlightElem.scrollIntoView({ behavior: 'smooth' });
-    dialogElem.scrollIntoView({ behavior: 'smooth' });
+    //highlightElem.scrollIntoView({ behavior: 'smooth' });
+    //dialogElem.scrollIntoView({ behavior: 'smooth' });
   }
 
   function goToNextStep() {
-    setElemVisible(false);
+    tourHighlightRef.current.style.pointerEvents = 'auto';
+    //setElemVisible(false);
     const nextStepIx = stepIx + 1;
     setStepIx(nextStepIx);
     const isLastStep = nextStepIx === tour.steps.length - 1;
@@ -209,7 +229,7 @@ function TalkyardTour() {
   }
 
   function goToPrevStep() {
-    setElemVisible(false);
+    //setElemVisible(false);
     setStepIx(stepIx - 1);
   }
 
@@ -222,8 +242,8 @@ function TalkyardTour() {
     goToNextStep();
   }
 
-  const highlightStyle = step.waitForClick && elemVisible ? { pointerEvents: 'none' } : null;
-  const dialogVisiblilityStyle = { visibility: (elemVisible ? null : 'hidden') };
+  //const highlightStyle = step.waitForClick && elemVisible ? { pointerEvents: 'none' } : null;
+  //const dialogVisiblilityStyle = { visibility: (elemVisible ? null : 'hidden') };
   const nextDisabled = step.waitForClick;
   const isLastStep = stepIx === tour.steps.length - 1;
   // If we're at the first step, or the previous step involved clicking a button,
@@ -233,17 +253,17 @@ function TalkyardTour() {
 
   return r.div({ className: 's_Tour' },
     r.div({ className: 's_Tour_Highlight', ref: tourHighlightRef,
-        onClick: maybeGoNextOnElemClick, style: highlightStyle }),
+        onClick: maybeGoNextOnElemClick }),  //, style: highlightStyle }),
     r.div({ className: 's_Tour_ClickBlocker-Left-All' }),
     r.div({ className: 's_Tour_ClickBlocker-Right' }),
     r.div({ className: 's_Tour_ClickBlocker-Above' }),
     r.div({ className: 's_Tour_ClickBlocker-Below' }),
-    r.div({ className: 's_Tour_D', ref: tourDialogRef, style: dialogVisiblilityStyle },
+    r.div({ className: 's_Tour_D', ref: tourDialogRef },  //, style: dialogVisiblilityStyle },
       r.h3({ className: 's_Tour_D_Ttl' }, step.title),
       r.p({ className: 's_Tour_D_Txt' }, step.text),
       r.div({ className: 's_Tour_D_Bs' },
         PrimaryButton({ onClick: goToNextStep, className: 's_Tour_D_Bs_NextB',
-            disabled: nextDisabled }, isLastStep ? "Goodbye" : "Next"),                   // I18N
+            disabled: nextDisabled }, isLastStep ? "Goodbye" : step.nextTitle || "Next"), // I18N
         !canGoBack ? null :
             Button({ onClick: goToPrevStep, className: 's_Tour_D_Bs_PrevB'  }, "Prev"),   // I18N
         r.div({ className: 's_Tour_D_Bs_Ix' }, `${stepIx + 1}/${tour.steps.length}`),

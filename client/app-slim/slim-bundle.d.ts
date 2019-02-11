@@ -165,6 +165,14 @@ declare namespace debiki2 {
     const TopBar: any;
   }
 
+  namespace sidebar {
+    const contextBar: {
+      closeSidebar: () => void;
+      openSidebar: () => void;
+      showAdminGuide: () => void;
+    }
+  }
+
   // should be moved to inside the editor bundle
   namespace editor {
     var SelectCategoryDropdown;

@@ -22,10 +22,15 @@
 const d = { i: debiki.internal };
 
 
-export function calcScrollIntoViewCoordsInPageColumn(what, options?) {
+export function calcScrollIntoViewCoordsInPageColumn(
+    elemOrSelector: Element | string, options?) {
   // Warning: dupl code, see [5GUKF24] below.
-  if (what && _.isString(what)) {
-    what = $first(what);
+  let what: Element;
+  if (elemOrSelector && _.isString(elemOrSelector)) {
+    what = $first(elemOrSelector);
+  }
+  else {
+    what = <Element> elemOrSelector;
   }
   if (!what)
     return { needsToScroll: false };
@@ -34,14 +39,21 @@ export function calcScrollIntoViewCoordsInPageColumn(what, options?) {
   }
   debiki2.dieIf(options.parent, 'EsE77KF28');
   options.parent = $byId('esPageColumn');
+  if (!options.parent.contains(what))
+    return { needsToScroll: false };
   return d.i.calcScrollIntoViewCoords(what, options);
 }
 
 
-export function scrollIntoViewInPageColumn(what, options?): boolean | undefined {
+export function scrollIntoViewInPageColumn(
+    elemOrSelector: Element | string, options?): boolean | undefined {
   // Warning: dupl code, see [5GUKF24] above.
-  if (what && _.isString(what)) {
-    what = $first(what);
+  let what: Element;
+  if (elemOrSelector && _.isString(elemOrSelector)) {
+    what = $first(elemOrSelector);
+  }
+  else {
+    what = <Element> elemOrSelector;
   }
   if (!what)
     return;
@@ -50,6 +62,8 @@ export function scrollIntoViewInPageColumn(what, options?): boolean | undefined 
   }
   debiki2.dieIf(options.parent, 'EsE5GKF23');
   options.parent = $byId('esPageColumn');
+  if (!options.parent.contains(what))
+    return false;
   return scrollIntoView(what, options);
 }
 

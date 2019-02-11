@@ -30,6 +30,10 @@ export const staffTours: StaffTours = {
     id: 'aa',  // for Admins, the Admin area
     forWho: me,
     steps: [{
+      doBefore: () => {
+        // The sidebar can occlude things, if screen narrow.
+        debiki2.sidebar.contextBar.closeSidebar();
+      },
       pauseBeforeMs: 1000,
       title: "This is the Admin Area",
       text: "It's for staff only",
@@ -41,6 +45,7 @@ export const staffTours: StaffTours = {
       placeHow: PlaceHow.ToTheRight,
       waitForClick: true,
     }, {
+      pauseBeforeMs: 300,
       title: "Here you can ...",
       text: r.span({}, "... make this community ", r.b({}, "private")),
       placeAt: '.e_A_Ss_S-LoginRequiredCB',
@@ -54,13 +59,11 @@ export const staffTours: StaffTours = {
       placeHow: PlaceHow.Below,
       waitForClick: true,
     }, {
-      pauseBeforeMs: 500,
       title: "Later, new members' ...",
       text: "... first posts are shown here. So you can " +
           "check that they are okay.",
       placeAt: 'body',
     }, {
-      pauseBeforeMs: 500,
       title: "One last thing",
       text: r.span({}, "Click the ", r.b({}, "Users"), " tab"),
       placeAt: '.e_UsrsB',
@@ -73,10 +76,16 @@ export const staffTours: StaffTours = {
       placeHow: PlaceHow.Below,
       waitForClick: true,
     }, {
+      pauseBeforeMs: 500,
       title: "Here you can invite people",
       text: "to your community",
       placeAt: 'body',
     }, {
+      doBefore: () => {
+        debiki2.sidebar.contextBar.openSidebar();
+        debiki2.sidebar.contextBar.showAdminGuide();
+      },
+      pauseBeforeMs: 700,
       title: "Look, an admin guide",
       text: "For you.",
       placeAt: '.esCtxbar_list_title',
@@ -92,9 +101,14 @@ export const staffTours: StaffTours = {
     id: 'af',  // for Admins, the Forum section
     forWho: me,
     steps: [{
-      pauseBeforeMs: 1000,
+      doBefore: () => {
+        // The sidebar can occlude things, if screen narrow.
+        debiki2.sidebar.contextBar.closeSidebar();
+      },
+      pauseBeforeMs: 500,
       title: `Welcome, ${me.fullName || me.username}!`,
       text: "Let me show you around",
+      nextTitle: "Okay",
       placeAt: 'body',
     }, {
       title: "This is the intro text",
@@ -110,7 +124,7 @@ export const staffTours: StaffTours = {
     }, {
       title: "The welcome topic",
       text: "Later, click and edit this topic, too",
-      placeAt: '.s_F_Ts_T_Con [href]',
+      placeAt: '.esF_TsL_T_Title [href]',
       placeHow: PlaceHow.ToTheRight,
       highlightOffsetX: 5,
     }, {
@@ -121,7 +135,7 @@ export const staffTours: StaffTours = {
       placeHow: PlaceHow.Below,
       waitForClick: true,
     }, {
-      pauseBeforeMs: 700,
+      pauseBeforeMs: 600,
       title: "The Categories page",
       text: "Here you see all categories. (That is, groups of topics about the same thing)",
       placeAt: 'body',
@@ -138,11 +152,11 @@ export const staffTours: StaffTours = {
       placeHow: PlaceHow.ToTheLeft,
       waitForClick: true,
     }, {
+      pauseBeforeMs: 200,
       title: "Admin area link",
       text: "Click now, to go to the admin area.",
       placeAt: '.esMyMenu_admin',
-      placeHow: PlaceHow.Below,
-      highlightPadding: -3,
+      placeHow: PlaceHow.ToTheLeft,
       waitForClick: true,
     }],
   }},
