@@ -1080,10 +1080,16 @@ export const Editor = createComponent({
   },
 
   saveDraftClearAndClose: function() {
-    this.saveDraftNow(this.clearAndClose);
+    this.saveDraftNow(() => this.clearAndClose({ keepDraft: true }));
   },
 
-  clearAndClose: function() {
+  clearAndClose: function(ps: { keepDraft?: true } = {}) {
+    if (!ps.keepDraft) {
+      const anyDraft: Draft = this.state.draft;
+      if (anyDraft)
+        removeFromSessionStorage(anyDraft.forWhat);
+    }
+
     this.returnSpaceAtBottomForEditor();
     this.setState({
       visible: false,

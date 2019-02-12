@@ -224,6 +224,8 @@ declare namespace debiki2 {
   function putInSessionStorage(key: any, value: any);
   function getFromLocalStorage(key: any): any;
   function getFromSessionStorage(key: any): any;
+  function removeFromLocalStorage(key);
+  function removeFromSessionStorage(key);
 
   function event_isCtrlEnter(event): boolean;
   function event_isEscape(event): boolean;
