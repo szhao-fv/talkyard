@@ -216,9 +216,15 @@ declare namespace debiki2 {
   var Server: any;
   var reactelements: any;
   var hashStringToNumber: any;
+
+  function stableStringify(obj: any): string;
+
   function canUseLocalStorage(): boolean;
-  var getFromLocalStorage: any;
-  var putInLocalStorage: any;
+  function putInLocalStorage(key: any, value: any);
+  function putInSessionStorage(key: any, value: any);
+  function getFromLocalStorage(key: any): any;
+  function getFromSessionStorage(key: any): any;
+
   function event_isCtrlEnter(event): boolean;
   function event_isEscape(event): boolean;
   function page_isPrivateGroup(pageRole: PageRole): boolean;

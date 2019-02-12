@@ -24,7 +24,23 @@ const stupidLocalStorage = {};
 const stupidSessionStorage = {};
 
 
+/**
+ * JSON.stringify saves keys in the order they were added, which tends to be rather
+ * random, breaking lookup when getting something from session or local storage
+ * (if the key is a stringified object).
+ */
+export function stableStringify(obj: any): string {
+  // @ifdef DEBUG
+  dieIf(!obj, "TyE7AKBR02")
+  // @endif
+  if (!_.isObject(obj)) return obj;
+  const keysSorted = Object.keys(obj).sort();
+  return JSON.stringify(obj, keysSorted);
+}
+
+
 export function putInLocalStorage(key, value) {
+  key = stableStringify(key);
   // In Safari, private browsing mode, there's no local storage, so setItem() throws an error.
   try {
     localStorage.setItem(key, JSON.stringify(value));
@@ -37,6 +53,7 @@ export function putInLocalStorage(key, value) {
 
 
 export function putInSessionStorage(key, value) {
+  key = stableStringify(key);
   // In Safari, private browsing mode, there's no session storage, so setItem() throws an error.
   try {
     sessionStorage.setItem(key, JSON.stringify(value));
@@ -49,11 +66,13 @@ export function putInSessionStorage(key, value) {
 
 
 export function getFromLocalStorage(key) {
+  key = stableStringify(key);
   return getFromStorage(true, stupidLocalStorage, key);
 }
 
 
 export function getFromSessionStorage(key) {
+  key = stableStringify(key);
   return getFromStorage(false, stupidSessionStorage, key);
 }
 
