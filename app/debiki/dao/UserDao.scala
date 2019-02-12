@@ -1080,6 +1080,21 @@ trait UserDao {
   }
 
 
+  def rememberVisitAndTourTipsSeen(user: Participant, lastVisitedAt: When,
+        anyTourTipsSeen: Option[TourTipsSeen]): ReadMoreResult = {
+    require(user.isMember, "EdE8KFUW2") // see above [8PLKW46]
+    readWriteTransaction { tx =>
+      val statsBefore = tx.loadUserStats(user.id) getOrDie "EdE2FPJR9"
+      val statsAfter = statsBefore.addMoreStats(UserStats(
+        userId = user.id,
+        lastSeenAt = lastVisitedAt,
+        tourTipsSeen = anyTourTipsSeen))
+      tx.upsertUserStats(statsAfter)
+    }
+    ReadMoreResult(numMoreNotfsSeen = 0)
+  }
+
+
   def promoteUser(userId: UserId, newTrustLevel: TrustLevel, tx: SiteTransaction) {
     // If trust level locked, we'll promote the member anyway — but member.effectiveTrustLevel
     // won't change, because it considers the locked trust level first.
