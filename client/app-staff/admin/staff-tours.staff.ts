@@ -45,7 +45,7 @@ export const staffTours: StaffTours = {
       placeHow: PlaceHow.ToTheRight,
       waitForClick: true,
     }, {
-      pauseBeforeMs: 300,
+      pauseBeforeMs: 400,
       title: "Here you can ...",
       text: r.span({}, "... make this community ", r.b({}, "private")),
       placeAt: '.e_A_Ss_S-LoginRequiredCB',
@@ -59,6 +59,7 @@ export const staffTours: StaffTours = {
       placeHow: PlaceHow.Below,
       waitForClick: true,
     }, {
+      pauseBeforeMs: 500,
       title: "Later, new members' ...",
       text: "... first posts are shown here. So you can " +
           "check that they are okay.",
@@ -70,6 +71,7 @@ export const staffTours: StaffTours = {
       placeHow: PlaceHow.ToTheRight,
       waitForClick: true,
     }, {
+      pauseBeforeMs: 500,
       title: "You can invite people",
       text: r.span({}, "Click ", r.b({}, "Invite"), " above, please"),
       placeAt: '.e_InvitedUsB',
@@ -124,7 +126,7 @@ export const staffTours: StaffTours = {
     }, {
       title: "The welcome topic",
       text: "Later, click and edit this topic, too",
-      placeAt: '.esF_TsL_T_Title [href]',
+      placeAt: '.e2eTopicTitle [href]',
       placeHow: PlaceHow.ToTheRight,
       highlightOffsetX: 5,
     }, {

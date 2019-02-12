@@ -99,12 +99,12 @@ function TalkyardTour() {
                                              // positioning, which needs its size.
 
     if (!placeAtElem) {
-      setTimeout(waitForAndScrollToElemThenShowDialog, 1000);
+      setTimeout(waitForAndScrollToElemThenShowDialog, 100);
       return;
     }
 
     const isScrolling = utils.scrollIntoViewInPageColumn(
-        placeAtElem, { marginTop: 100, marginBottom: 200 });
+        placeAtElem, { marginTop: 90, marginBottom: 250 });
     //if (isScrolling) {
       // Sometimes the first scroll somehow doesn't scroll all the way.
       //setTimeout(waitForAndScrollToElemThenShowDialog, 500);
@@ -168,8 +168,16 @@ function TalkyardTour() {
     }
 
     function placeBelow() {
-      left = placeAtRect.left + placeAtRect.width / 2 - dialogWidth / 2;
+      const dialogPadding = 17; // [4BQWTJ0]
+      const aLittleBit = 4;
+      left = Math.max(aLittleBit, placeAtRect.left + placeAtRect.width / 2 - dialogWidth / 2);
+      if (left + dialogWidth - dialogPadding > window.innerWidth) {
+        left = window.innerWidth - dialogWidth - aLittleBit;
+      }
       top = placeAtRect.top + placeAtRect.height + 2 * extraPadding;
+      if (top + dialogHeight - dialogPadding > window.innerHeight) {
+        top = window.innerHeight - dialogHeight + dialogPadding - aLittleBit;
+      }
     }
 
     dialogElem.style.visibility = 'visible';

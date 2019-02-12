@@ -149,6 +149,8 @@ declare namespace debiki2 {
     var DropdownModal;
     var ModalDropdownButton;
     var FadeInOnClick;
+
+    function maybeRunTour(tour: TalkyardTour);
   }
 
   namespace util {

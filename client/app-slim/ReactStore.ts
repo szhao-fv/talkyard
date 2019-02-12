@@ -545,25 +545,6 @@ ReactStore.activateMyself = function(anyNewMe: Myself) {
 
   debiki2.pubsub.subscribeToServerEvents(store.me);
   store.quickUpdate = false;
-
-  // This is a bit hacky. Works for now. HACK
-  if (!store.me.isAdmin) {
-    // If new user, show open-my-menu tiny one step tour?
-  }
-  else if (eds.isInAdminArea) {
-    if (location.pathname === '/-/admin/settings/legal') {
-      debiki2.staffbundle.loadStaffTours((tours) => {
-        debiki2.utils.maybeRunTour(tours.adminArea(store.me));
-      });
-    }
-  }
-  else {
-    if (location.pathname.endsWith('/latest')) {
-      debiki2.staffbundle.loadStaffTours((tours) => {
-        debiki2.utils.maybeRunTour(tours.forum(store.me));
-      });
-    }
-  }
 };
 
 

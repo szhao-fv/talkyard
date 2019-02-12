@@ -672,10 +672,18 @@ const LoadAndListTopics = createFactory({
       return;
     }
 
+    const store: Store = this.props.store;
+    const me: Myself = store.me;
+    if (me.isAdmin && !this.forumTourStarted) {
+      this.forumTourStarted = true;
+      debiki2.staffbundle.loadStaffTours((tours) => {
+        if (this.isGone) return;
+        debiki2.utils.maybeRunTour(tours.forum(me));
+      });
+    }
+
     if (!this.canUseTopicsInScriptTag())
       return;
-
-    const store: Store = this.props.store;
 
     // We're still using a copy of the topics list in the store, so update the copy,
     // maybe new user-specific data has been added.
