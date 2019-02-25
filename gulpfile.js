@@ -58,11 +58,12 @@ function readGitHash() {
 const version = fs.readFileSync(versionFilePath, { encoding: 'utf8' }).trim();
 const versionTag = version + '-' + readGitHash();  // also in Bash and Scala [8GKB4W2]
 
-const webDestDir = 'images/web/assets';
-const webDestDirVersioned = `${webDestDir}/${version}`;
-const webDestDirTranslations = `${webDestDirVersioned}/translations`;
-const serverDestDir = 'public/res';
-const serverDestDirTranslations = 'public/res/translations'
+// Here we'll place the generated js, min.js and min.js.gz files. [GZPATHS]
+const webDest = 'images/web/assets';
+const webDestVersioned = `${webDest}/${version}`;
+const webDestTranslations = `${webDestVersioned}/translations`;
+const serverDest = 'images/app/assets';
+const serverDestTranslations = `${serverDest}/translations`;
 
 
 /*
@@ -300,8 +301,8 @@ gulp.task('build-e2e', gulp.series('clean-e2e', 'compile-e2e-scripts'));
 
 gulp.task('cleanTranslations', () => {
   return del([
-      `${serverDestDirTranslations}/**/*`,
-      `${webDestDirTranslations}/**/*`]);
+      `${serverDestTranslations}/**/*`,
+      `${webDestTranslations}/**/*`]);
 });
 
 // Transpiles translations/(language-code)/i18n.ts to one-js-file-per-source-file
@@ -315,8 +316,8 @@ gulp.task('compileTranslations', () => {
         types: ['core-js']
       }));
   return stream.js
-      .pipe(gulp.dest(webDestDirTranslations))
-      .pipe(gulp.dest(serverDestDirTranslations));
+      .pipe(gulp.dest(webDestTranslations))
+      .pipe(gulp.dest(serverDestTranslations));
 });
 
 gulp.task('buildTranslations', gulp.series('cleanTranslations', 'compileTranslations'));
@@ -374,7 +375,7 @@ function compileServerTypescriptConcatJavascript() {
 
   return merge2(javascriptStream, typescriptStream)
       .pipe(concat('server-bundle.js'))
-      .pipe(gulp.dest(serverDestDir));
+      .pipe(gulp.dest(serverDest));
 }
 
 var swTypescriptProject = typeScript.createProject("client/serviceworker/tsconfig.json");
@@ -486,14 +487,14 @@ function makeConcatWebScriptsStream() {
   function makeConcatStream(outputFileName, filesToConcat, checkIfNewer, versioned) {
     var stream = gulp.src(filesToConcat).pipe(plumber());
     if (checkIfNewer) {
-      stream = stream.pipe(newer(webDestDirVersioned + '/' + outputFileName));
+      stream = stream.pipe(newer(webDestVersioned + '/' + outputFileName));
     }
     return stream
         .pipe(insert.transform(nextFileTemplate))
         .pipe(concat(outputFileName))
         .pipe(insert.prepend(thisIsAConcatenationMessage))
         .pipe(insert.prepend(makeCopyrightAndLicenseBanner()))
-        .pipe(gulp.dest(versioned === false ? webDestDir : webDestDirVersioned));
+        .pipe(gulp.dest(versioned === false ? webDest : webDestVersioned));
   }
 
   return merge2(
@@ -505,7 +506,7 @@ function makeConcatWebScriptsStream() {
       makeConcatStream('editor-bundle.js', editorJsFiles, 'DoCheckNewer'),
       makeConcatStream('jquery-bundle.js', jqueryJsFiles, 'DoCheckNewer'),
       makeConcatStream('talkyard-comments.js', embeddedJsFiles, 'DoCheckNewer', false),
-      gulp.src('node_modules/zxcvbn/dist/zxcvbn.js').pipe(gulp.dest(webDestDirVersioned)));
+      gulp.src('node_modules/zxcvbn/dist/zxcvbn.js').pipe(gulp.dest(webDestVersioned)));
 }
 
 
@@ -530,21 +531,29 @@ gulp.task('enable-prod-stuff', (done) => {
 
 // Similar to 'minifyScripts', but a different copyright header.
 gulp.task('minifyTranslations', gulp.series('buildTranslations', () => {
+  /* This won't create any .gz in webDestTranslations, why not?
   return makeMinJsGzStream(
-      serverDestDirTranslations,
+      serverDestTranslations,
       makeTranslationsCopyrightAndLicenseBanner,
       true,
-      webDestDirTranslations);
-  /*
-  return gulp.src([`${serverDestDirTranslations}/** /*.js`])
+      webDestTranslations);
+  // The above plus this, works, but that means we're minifying & zipping twice:
+  return makeMinJsGzStream(
+      webDestTranslations,
+      makeTranslationsCopyrightAndLicenseBanner,
+      true); */
+  // Instead: (and isn't this identical to the 1st alt above ?? why this works, not the above?)
+  return gulp.src([`${serverDestTranslations}/**/*.js`, `!${serverDestTranslations}/**/*.min.js`])
       .pipe(plumber())
+      .pipe(preprocess({ context: {} }))
       .pipe(uglify())
       .pipe(rename({ extname: '.min.js' }))
       .pipe(insert.prepend(makeTranslationsCopyrightAndLicenseBanner()))
+      .pipe(gulp.dest(webDestTranslations))
+      .pipe(gulp.dest(serverDestTranslations))
       .pipe(gzip())
-      .pipe(gulp.dest(webDestDirTranslations))
-      .pipe(gulp.dest(serverDestDirTranslations));
-      */
+      .pipe(gulp.dest(webDestTranslations))
+      .pipe(gulp.dest(serverDestTranslations));
 }));
 
 
@@ -552,25 +561,25 @@ gulp.task('minifyTranslations', gulp.series('buildTranslations', () => {
 // on the very last line in a {} block, because it would get removed, by... by what? the
 // Typescript compiler? This results in an impossible-to-understand "Unbalanced delimiter
 // found in string" error with a meaningless stacktrace, in preprocess().
-function makeMinJsGzStream(sourceAndDestDir, bannerFn, recursive, destDir2) {
-  const sourceDir = sourceAndDestDir + (recursive ? '/**' : '');
+function makeMinJsGzStream(sourceAndDest, bannerFn, recursive, dest2) {
+  const sourceDir = sourceAndDest + (recursive ? '/**' : '');
   const stream = gulp.src([`${sourceDir}/*.js`, `!${sourceDir}/*.min.js`])
       .pipe(plumber())
       .pipe(preprocess({ context: {} })) // see comment above
       .pipe(uglify())
       .pipe(rename({ extname: '.min.js' }))
       .pipe(insert.prepend(bannerFn()))
-      .pipe(gulp.dest(sourceAndDestDir));
-  if (destDir2) {
+      .pipe(gulp.dest(sourceAndDest));
+  if (dest2) {
     stream
-      .pipe(gulp.dest(destDir2));
+      .pipe(gulp.dest(dest2));
   }
   stream
       .pipe(gzip())
-      .pipe(gulp.dest(sourceAndDestDir));
-  if (destDir2) {
+      .pipe(gulp.dest(sourceAndDest));
+  if (dest2) {
     stream
-      .pipe(gulp.dest(destDir2));
+      .pipe(gulp.dest(dest2));
   }
   return stream;
 }
@@ -578,9 +587,9 @@ function makeMinJsGzStream(sourceAndDestDir, bannerFn, recursive, destDir2) {
 
 gulp.task('minifyScripts', gulp.series('compileConcatAllScripts', 'minifyTranslations', () => {
   return merge2(  // can speed up with gulp.parallel? (GLPPPRL)
-      makeMinJsGzStream(serverDestDir, makeCopyrightAndLicenseBanner),
-      makeMinJsGzStream(webDestDir, makeCopyrightAndLicenseBanner),
-      makeMinJsGzStream(webDestDirVersioned, makeCopyrightAndLicenseBanner));
+      makeMinJsGzStream(serverDest, makeCopyrightAndLicenseBanner),
+      makeMinJsGzStream(webDest, makeCopyrightAndLicenseBanner),
+      makeMinJsGzStream(webDestVersioned, makeCopyrightAndLicenseBanner));
 }));
 
 
@@ -598,13 +607,13 @@ gulp.task('compile-stylus', () => {
       .pipe(plumber())
       .pipe(stylus(stylusOpts))
       .pipe(concat('styles-bundle.css'))
-      .pipe(gulp.dest(webDestDirVersioned))
+      .pipe(gulp.dest(webDestVersioned))
       .pipe(cleanCSS())
       .pipe(insert.prepend(makeCopyrightAndLicenseBanner()))
       .pipe(rename({ extname: '.min.css' }))
-      .pipe(gulp.dest(webDestDirVersioned))
+      .pipe(gulp.dest(webDestVersioned))
       .pipe(gzip())
-      .pipe(gulp.dest(webDestDirVersioned));
+      .pipe(gulp.dest(webDestVersioned));
   }
 
   return (

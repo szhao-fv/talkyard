@@ -18,7 +18,7 @@ services:
       # so Nginx can auto reload them after edits, without rebuilding the image.
       # (The files are COPY:d too, so will work in Prod.)
       - ./images/web/ed-lua/:/opt/talkyard/lua/:ro
-      - ./images/web/assets/:/opt/talkyard/assets/:ro
+      - ./images/web/assets/:/opt/talkyard/assets/:ro   # [NGXSTC]
       - ./images/web/ty-media/:/opt/talkyard/ty-media/:ro
       - ./volumes/uploads/:/opt/talkyard/uploads/:ro
       - ./volumes/letsencrypt/:/etc/letsencrypt/:ro
@@ -49,6 +49,8 @@ services:
       - ./:/opt/talkyard/app/
       - ./volumes/uploads/:/opt/talkyard/uploads/
       - ./volumes/app-logs/:/var/log/talkyard/
+      # So assets get refreshed on restart, in dev mode, without rebuilding imaage. [APPJSPATH]
+      - ./images/app/assets/:/opt/talkyard/app/assets/:ro
       # Without this, takes forever to start: sbt would always download all dependencies. [SBTHOME]
       - ${HOME}/.ivy2/:/home/owner/.ivy2/
       - ${HOME}/.sbt/:/home/owner/.sbt/

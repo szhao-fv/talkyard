@@ -245,12 +245,6 @@ class SiteTpi protected (
 
   def assetUrl(fileName: String): String = assetUrlPrefix + fileName
 
-  def xx_assetUrl(fileName: String): String = {
-    val weird = s"$assetUrlPrefix${globals.talkyardVersion}/$fileName"
-    System.out.println("GET: " + weird)
-    weird
-  }
-
   def assetUrlPrefix: String =
     s"$cdnOrServerOrigin/-/assets/${globals.talkyardVersion}/"   // sync with Nginx [NGXSTC]
 
