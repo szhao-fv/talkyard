@@ -14,9 +14,12 @@ services:
     # so can specify core dump path [NGXCORED]
     #privileged: true
     volumes:
-      # Mount the Lua scripts, rather than relying on Docker's COPY, so Nginx can
-      # auto reload them after edits. (We COPY them too, so will work in Prod.)
+      # Mount the Lua and JS and CSS scripts, rather than relying on Docker's COPY,
+      # so Nginx can auto reload them after edits, without rebuilding the image.
+      # (The files are COPY:d too, so will work in Prod.)
       - ./images/web/ed-lua/:/opt/talkyard/lua/:ro
+      - ./images/web/assets/:/opt/talkyard/assets/:ro
+      - ./images/web/ty-media/:/opt/talkyard/ty-media/:ro
       - ./volumes/uploads/:/opt/talkyard/uploads/:ro
       - ./volumes/letsencrypt/:/etc/letsencrypt/:ro
       - ./volumes/nginx-logs/:/var/log/nginx/
