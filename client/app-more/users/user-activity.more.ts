@@ -120,8 +120,9 @@ const UsersPosts = createFactory({
   },
 
   componentDidMount: function() {
+    const me: Myself = this.props.store.me;
     const user: MemberInclDetails = this.props.user;
-    this.loadPosts(user);
+    this.loadPosts(me, user);
   },
 
   componentWillUnmount: function() {
@@ -132,19 +133,18 @@ const UsersPosts = createFactory({
     // a bit dupl code [5AWS2E9]
     const store: Store = this.props.store;
     const nextStore: Store = nextProps.store;
-    const me: Myself = store.me;
+    const me: Myself = this.props.me;  // not store.me, it's been modif in-place [redux]
     const user: MemberInclDetails = this.props.user;
     const nextMe: Myself = nextStore.me;
     const nextUser: MemberInclDetails = nextProps.user;
     // If we log in as someone else, which posts we may see might change.
     if (me.id !== nextMe.id || user.id !== nextUser.id) {
-      this.loadPosts(nextUser);
+      this.loadPosts(nextMe, nextUser);
     }
   },
 
-  loadPosts: function(user: MemberInclDetails) {
+  loadPosts: function(me: Myself, user: MemberInclDetails) {
     // a bit dupl code [5AWS2E8]
-    const me: Myself = this.props.store.me;
     const [isStaffOrSelf, hiddenForMe] = isHiddenForMe(me, user);
     if (hiddenForMe) {
       this.setState({ posts: [], author: null });
@@ -208,8 +208,9 @@ const UsersTopics = createFactory({
   },
 
   componentDidMount: function() {
+    const me: Myself = this.props.store.me;
     const user: MemberInclDetails = this.props.user;
-    this.loadTopics(user);
+    this.loadTopics(me, user);
   },
 
   componentWillUnmount: function() {
@@ -220,19 +221,18 @@ const UsersTopics = createFactory({
     // a bit dupl code [5AWS2E9]
     const store: Store = this.props.store;
     const nextStore: Store = nextProps.store;
-    const me: Myself = store.me;
+    const me: Myself = this.props.me;  // not store.me, it's been modif in-place [redux]
     const user: MemberInclDetails = this.props.user;
     const nextMe: Myself = nextStore.me;
     const nextUser: MemberInclDetails = nextProps.user;
     // If we log in as someone else, which topics we may see might change.
     if (me.id !== nextMe.id || user.id !== nextUser.id) {
-      this.loadTopics(nextUser);
+      this.loadTopics(nextMe, nextUser);
     }
   },
 
-  loadTopics: function(user: MemberInclDetails) {
+  loadTopics: function(me: Myself, user: MemberInclDetails) {
     // a bit dupl code [5AWS2E8]
-    const me: Myself = this.props.store.me;
     const [isStaffOrSelf, hiddenForMe] = isHiddenForMe(me, user);
     if (hiddenForMe) {
       this.setState({ topics: [] });
