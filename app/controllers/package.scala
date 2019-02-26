@@ -37,6 +37,7 @@ package object controllers {
     * "invisible" 404 script-not-found errors in the dev console.
     */
   def dieIfAssetsMissingIfDevTest() {
+    /*
     if (Globals.isProd) return
 
     val serverJavascriptPath = "/public/res/server-bundle.js"
@@ -64,6 +65,7 @@ package object controllers {
     //if (getClass.getResourceAsStream(stylesPath) eq null)
     //  throw new QuickMessageException(
     //    s"CSS bundle not found: ${fileName(stylesPath)} [EsE2GPU0]\n\n$tips")
+    */
   }
 
 }

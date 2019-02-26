@@ -35,6 +35,10 @@ services:
       #- cache [NCHANREDIS]
     environment:
       CDN_PULL_KEY: "public"
+      # This is dev mode; tell the browser to refresh its cache each request.
+      TY_MAX_AGE_YEAR: "no-cache"
+      TY_MAX_AGE_MONTH: "no-cache"
+      TY_MAX_AGE_DAY: "no-cache"
 
   app:
     build:
