@@ -106,7 +106,7 @@ describe("emb cmts different ids same page  TyT2BKPJL3", () => {
     mariasBrowser.refresh()
   });
 
-  it("She posts another comment", () => {
+  it("She writes another comment", () => {
     mariasBrowser.switchToEmbeddedCommentsIrame();
     mariasBrowser.topic.clickReplyToEmbeddingBlogPost();
     mariasBrowser.switchToEmbeddedEditorIrame();
@@ -128,7 +128,7 @@ describe("emb cmts different ids same page  TyT2BKPJL3", () => {
 
   // ----- No id
 
-  it("The discussion id disappears, and no one knows why", () => {
+  it("The discussion id disappears. No one knows why", () => {
     saveEmbeddingPage('');
   });
 
@@ -136,7 +136,7 @@ describe("emb cmts different ids same page  TyT2BKPJL3", () => {
     mariasBrowser.refresh()
   });
 
-  it("... now, the 1st discusssion is back — because it's associated to the URL", () => {
+  it("... the 1st discusssion is back — because it's associated with the URL", () => {
     // This is how the ids look, in the database:
     //
     // > select * from alt_page_ids3 order by site_id asc limit 3;
@@ -148,7 +148,7 @@ describe("emb cmts different ids same page  TyT2BKPJL3", () => {
     //
     // Note that real_page_id 1 is associated to both the url, and to
     // discussion id x00 (i.e. 500). That's why we'll see the x00 discussion again,
-    // although that id is absent.
+    // although the id is absent.
 
     mariasBrowser.switchToEmbeddedCommentsIrame();
     mariasBrowser.topic.assertNumOrigPostRepliesVisible(1);
@@ -156,7 +156,7 @@ describe("emb cmts different ids same page  TyT2BKPJL3", () => {
     mariasBrowser.topic.assertPostTextMatches(c.FirstReplyNr, mariasCommentOne);
   });
 
-  it("She posts a comment on the id less html", () => {
+  it("She posts a comment on the now id less page", () => {
     mariasBrowser.switchToEmbeddedCommentsIrame();
     mariasBrowser.topic.clickReplyToEmbeddingBlogPost();
     mariasBrowser.switchToEmbeddedEditorIrame();
@@ -173,7 +173,7 @@ describe("emb cmts different ids same page  TyT2BKPJL3", () => {
 
   // ----- The 2nd id again
 
-  it("The discussion id, unexpectedly and suddenly, changes back to 0x0", () => {
+  it("The discussion id, unexpectedly, changes back to 0x0", () => {
     saveEmbeddingPage(discussionId0x0);
   });
 
@@ -194,7 +194,7 @@ describe("emb cmts different ids same page  TyT2BKPJL3", () => {
     saveEmbeddingPage(discussionIdx00);
   });
 
-  it("Maria again refreshes the page, for no reason", () => {
+  it("Maria refreshes the page. For no reason", () => {
     mariasBrowser.refresh()
   });
 
@@ -205,13 +205,12 @@ describe("emb cmts different ids same page  TyT2BKPJL3", () => {
     mariasBrowser.topic.assertPostTextMatches(c.FirstReplyNr, mariasCommentOne);
     mariasBrowser.topic.waitForPostNrVisible(c.FirstReplyNr + 1);
     mariasBrowser.topic.assertPostTextMatches(c.FirstReplyNr + 1, mariasCommentThree);
-settings.debugEachStep=true;
   });
 
 
   // ----- A 3rd id, page empty
 
-  it("The discussion id changes to 00x, never seen before", () => {
+  it("Now the discussion id changes to 00x, never seen before", () => {
     saveEmbeddingPage(discussionId00x);
   });
 
