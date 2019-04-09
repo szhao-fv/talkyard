@@ -222,6 +222,7 @@ ReactDispatcher.register(function(payload) {
       currentPage.pagePlannedAtMs = newMeta.plannedAt;
       currentPage.pageStartedAtMs = newMeta.startedAt;
       currentPage.pageDoneAtMs = newMeta.doneAt;
+      currentPage.pageClosedAtMs = newMeta.closedAt;
       currentPage.horizontalLayout = action.newPageRole === PageRole.MindMap || currentPage.is2dTreeDefault;
       const is2dTree = currentPage.horizontalLayout;
       updatePost(action.newTitlePost, currentPage.pageId);

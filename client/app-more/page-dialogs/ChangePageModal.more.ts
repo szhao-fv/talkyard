@@ -68,6 +68,7 @@ const ChangePageDialog = createComponent({
     this.setState({
       isOpen: false,
       page: undefined,
+      showViewAnswerButton: undefined,
     });
   },
 
@@ -97,8 +98,13 @@ const ChangePageDialog = createComponent({
       const canChangeDoingStatus = page_hasDoingStatus(page) && !page_isClosedNotDone(page);
 
       anyViewAnswerButton = !page.pageAnsweredAtMs || !state.showViewAnswerButton ? null :
-          Button({ onClick: utils.makeShowPostFn(TitleNr, page.pageAnswerPostNr) },
-            "View answer");  // I18N
+          r.div({ className: 's_ExplDrp_ActIt' },
+            Button({
+                onClick: (event) => {
+                  utils.makeShowPostFn(TitleNr, page.pageAnswerPostNr)(event);
+                  this.close();
+                }},
+              "View answer"));  // I18N
 
       changeStatusTitle = !canChangeDoingStatus ? null :
           r.div({ className: 's_ExplDrp_Ttl' }, "Change status to:");  // I18N
@@ -133,7 +139,7 @@ const ChangePageDialog = createComponent({
 
       changeCategoryListItem = rFragment({}, // site settnigs categories enabled?
           r.div({ className: 's_ExplDrp_Ttl' }, "Change category:"),  // I18N
-          r.div({ className: 'esExplDrp_entry' },
+          r.div({ className: 's_ExplDrp_ActIt' },
             editor.SelectCategoryDropdown({
                 store, selectedCategoryId: page.categoryId,
                 onCategorySelected: (categoryId: CategoryId) => {
@@ -142,7 +148,7 @@ const ChangePageDialog = createComponent({
 
       changeTopicTypeListItem = rFragment({},// site settnigs topic types?
           r.div({ className: 's_ExplDrp_Ttl' }, "Change topic type:"),  // I18N
-          r.div({ className: 'esExplDrp_entry' },
+          r.div({ className: 's_ExplDrp_ActIt' },
             editor.PageRoleDropdown({ pageRole: page.pageRole, store, onSelect: (newType: PageRole) => {
               savePage({ pageRole: newType });
             } })));
@@ -160,10 +166,10 @@ const ChangePageDialog = createComponent({
       else if (page.pageClosedAtMs) {
         reopenListItem = rFragment({},
             r.div({ className: 's_ExplDrp_Ttl' }, "Reopen?"),  // I18N
-            r.div({ className: 'esExplDrp_entry' },
-              ExplainingListItem({
-                title: r.span({ className: 'e_'  }, t.Reopen),
-                onSelect: debiki2.ReactActions.togglePageClosed })));
+            r.div({ className: 's_ExplDrp_ActIt' },
+              Button({ className: 'icon-circle-empty e_',
+                  onClick: debiki2.ReactActions.togglePageClosed },
+                t.Reopen)));
       }
       else {
         let closeItemText: string;
@@ -182,18 +188,18 @@ const ChangePageDialog = createComponent({
         }
         closeListItem = rFragment({},
             r.div({ className: 's_ExplDrp_Ttl' }, "Close?"),  // I18N
-            r.div({ className: 'esExplDrp_entry' },
-              // button!
-              ExplainingListItem({
-                title: r.span({ className: 'icon-block e_' }, t.Close),
-                text: closeItemText,
-                onSelect: debiki2.ReactActions.togglePageClosed })));
+            r.div({ className: 's_ExplDrp_ActIt' },
+              Button({ className: 'icon-block e_',
+                  onClick: debiki2.ReactActions.togglePageClosed },
+                t.Close),
+              r.div({ className: 'esExplDrp_ActIt_Expl' }, closeItemText)));
       }
     }
 
     return (
       DropdownModal({ show: state.isOpen, onHide: this.close, atX: state.atX, atY: state.atY,
-          pullLeft: true, showCloseButton: true, dialogClassName2: 's_ChPgD' },
+          pullLeft: state.showViewAnswerButton, // (hack) then it's the icon to the left of the title
+          showCloseButton: true, dialogClassName2: 's_ChPgD' },
         anyViewAnswerButton,
         changeStatusTitle,
         setNewListItem,
