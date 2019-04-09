@@ -346,8 +346,8 @@ export const Title = createComponent({
     this.setState({ isEditing: false });
   },
 
-  cycleIsDone: function() {
-    debiki2.ReactActions.cyclePageDone();
+  cycleIsDone: function() {  // rm
+    debiki2.ReactActions.cyclePageDone();  // rm
   },
 
   render: function() {
@@ -408,19 +408,23 @@ export const Title = createComponent({
       let tooltip = '';
       let icon;
       // (Some dupl code, see PostActions below and isDone() and isAnswered() in forum.ts [4KEPW2]
-      if (page.pageClosedAtMs && !page.pageDoneAtMs && !page.pageAnsweredAtMs) {
+      if (page_isClosedNotDone(page)) {
         icon = r.span({ className: 'icon-block' });
         tooltip = makePageClosedTooltipText(page.pageRole) + '\n';
       }
       else if (page.pageRole === PageRole.Question) {
-        icon = page.pageAnsweredAtMs
-            ? r.a({ className: 'icon-ok-circled dw-clickable',
-                onClick: utils.makeShowPostFn(TitleNr, page.pageAnswerPostNr) })
-            : r.span({ className: 'icon-help-circled' });
+        const iconClass = page.pageAnsweredAtMs ? 'icon-ok-circled' : 'icon-help-circled';
+        icon = page.pageAnsweredAtMs || isStaffOrMyPage
+            ? r.a({ className: 'dw-clickable ' + iconClass,
+                onClick: event => {
+                  const rect = cloneEventTargetRect(event);
+                  morebundle.openChangePageDialog(rect, { page, showViewAnswerButton: true });
+                }})
+                //onClick: utils.makeShowPostFn(TitleNr, page.pageAnswerPostNr) })  rm
+            : r.span({ className: iconClass });
         tooltip = makeQuestionTooltipText(page.pageAnsweredAtMs) + ".\n";
       }
-      else if (page.pageRole === PageRole.Problem || page.pageRole === PageRole.Idea ||
-                page.pageRole === PageRole.ToDo || page.pageRole === PageRole.UsabilityTesting) {
+      else if (page_hasDoingStatus(page)) {
         // (Some dupl code, see [5KEFEW2] in forum.ts.
         let iconClass;
         let iconTooltip;
@@ -476,8 +480,9 @@ export const Title = createComponent({
         }
         if (!isStaffOrMyPage) iconTooltip = null;
         const clickableClass = isStaffOrMyPage ? ' dw-clickable' : '';
-        const onClick = isStaffOrMyPage ? this.cycleIsDone : null;
-        icon = r.span({ className: iconClass + clickableClass, onClick: onClick,
+        const onClick = !isStaffOrMyPage ? null :
+            event => morebundle.openChangePageDialog(cloneEventTargetRect(event), { page });
+        icon = r.span({ className: iconClass + clickableClass, onClick,
             title: iconTooltip });
       }
       else if (page.pageRole === PageRole.FormalMessage) {

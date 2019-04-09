@@ -20,15 +20,25 @@
 /// <reference path="../more-prelude.more.ts" />
 
 //------------------------------------------------------------------------------
-   module debiki2.editor {
+   namespace debiki2.editor {
 //------------------------------------------------------------------------------
 
 const r = ReactDOMFactories;
 const DropdownModal = utils.DropdownModal;
 const ExplainingListItem = util.ExplainingListItem;
 
+/*
+export const PageRoleDropdownxx = React.createFactory(function (props: {
+   pageRole: PageRole, store: Store, complicated?: boolean, hideStaffOnly?: boolean }) {
+  const ref = React.useRef(null);
+  const refElem: HTMLElement = ref.current;
+  return Button({ onClick: null, ref, className: 'esTopicType_dropdown' },
+      pageRole_toIconString(props.pageRole), ' ', r.span({ className: 'caret' });
+}); */
+
 
 // BEM name: esTopicType -- no. Instead, esPTD = Page-Type-Dropdown?
+// No. Instea: s_PTD = page type dialog.
 export var PageRoleDropdown = createComponent({
   getInitialState: function() {
     return {
@@ -191,7 +201,7 @@ export var PageRoleDropdown = createComponent({
           customHtmlPageOption));
 
     return (
-      r.div({ style: { display: 'inline-block' } },
+      rFragment({},  //r.div({ style: { display: 'inline-block' } },
         dropdownButton,
         dropdownModal));
   }
@@ -199,7 +209,7 @@ export var PageRoleDropdown = createComponent({
 
 
 
-function pageRole_toIconString(pageRole: PageRole) {
+export function pageRole_toIconString(pageRole: PageRole) {
   switch (pageRole) {
     case PageRole.CustomHtmlPage: return t.pt.CustomHtml;
     case PageRole.WebPage: return t.pt.InfoPage;

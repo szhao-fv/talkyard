@@ -1,4 +1,15 @@
 
+$sideSpace =20px;
+
+.s_ExplDrp_Ttl
+  margin: 6px 50px 7px 12px;  // 50px = space for a close [X] button
+  font-size: 17px;
+  font-style: italic;
+
+.esExplDrp_entry + .s_NotfPrefDD_Ttl
+  margin-top: 14px;
+
+
 .esExplDrp_entry
   list-style: none;
   margin: 0;
@@ -8,9 +19,12 @@
   a
     display: block;
     text-decoration: none;
-    padding: 9px 20px;
+    padding: 9px $sideSpace;
     @media (max-width: 500px)
       padding-right: 0; // the DropModal has padding-right itself already [5YKF20]
+
+  button
+    margin: 0 0 7px $sideSpace;
 
   &:hover
     background: hsl($uiHue, 100%, 97%);
